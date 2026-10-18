@@ -1,11 +1,11 @@
-"""ListHoard FastAPI app (docs/specs/ListHoard.spec.md §6.2).
+"""ListHoard FastAPI app (the ListHoard specification §6.2).
 
 Server-rendered Jinja + plain forms, no SPA toolchain. Auth matches the
 Jellyfin account model (ruling 21): every non-/healthz, non-/img, non-/login
 route requires a session obtained from POST /login, which authenticates
-against the Jellyfin server (docs/book-of-api/jellyfin.md#@jellyfin-post-users-authenticatebyname).
+against the Jellyfin server (Jellyfin's /Users/AuthenticateByName).
 
-Refactor note (docs/specs/Optimization.spec.md §7.4): routes shape requests;
+Refactor note (the optimization specification §7.4): routes shape requests;
 the data work lives in db.py. Cache-key namespaces and response semantics are
 byte-identical to the pre-refactor probes recorded in
 docs/optimization-evidence.md.
@@ -35,7 +35,7 @@ app = FastAPI(title="ListHoard", docs_url=None, redoc_url=None, openapi_url=None
 templates = Jinja2Templates(directory="templates")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# --- steady-state metrics (docs/specs/Optimization.spec.md §7.5)  -----------
+# --- steady-state metrics (the optimization specification §7.5)  -----------
 
 # Embedded at module level so the threshold is bound before the middleware
 # registers. Env-overridable; defaults tuned in Batch-2c from the profile.
@@ -364,6 +364,7 @@ def list_detail(request: Request, list_id: int, page: int = 1) -> HTMLResponse:
         )
     profile_root = arr.profiles("radarr" if lst["mediatype"] != "show" else "sonarr")
     folders = arr.root_folders("radarr" if lst["mediatype"] != "show" else "sonarr")
+    arr_ok = bool(profile_root and folders)
     threshold = int(os.environ.get("LISTHOARD_HUGE_LIST_THRESHOLD", "5000"))
     default_search = "false" if lst["item_count"] > threshold else "true"
     running_id = importer.running_for_list(list_id)
@@ -385,6 +386,7 @@ def list_detail(request: Request, list_id: int, page: int = 1) -> HTMLResponse:
             "running_import": running_id,
             "latest_import": latest,
             "prior_imports": prior,
+            "arr_ok": arr_ok,
         },
     )
 

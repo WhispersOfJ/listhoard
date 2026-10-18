@@ -12,7 +12,7 @@
 services:
   listhoard:
     build: .
-    image: listhoard:local
+    image: ghcr.io/whispersofj/listhoard:0.2.0
     container_name: listhoard
     restart: unless-stopped
     user: "1000:1000"

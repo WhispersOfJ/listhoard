@@ -287,6 +287,48 @@ th, td { text-align: left; }
   letter-spacing: .05em;
 }
 
+/* Saved sights (Shippability slice 5): the browse filters as named,
+   store-backed chips riding the form row. */
+#saved-filters {
+  display: inline-flex;
+  gap: .5rem;
+  align-items: center;
+}
+
+#save-filter-name {
+  width: 14ch;
+}
+
+.sight {
+  display: inline-flex;
+  gap: .3rem;
+  align-items: center;
+  background: rgba(78, 240, 207, .08);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: .15rem .4rem .15rem .6rem;
+}
+
+.sight a {
+  color: var(--lume);
+  text-decoration: none;
+  font-size: 11.5px;
+  letter-spacing: .04em;
+}
+
+.sight .drop {
+  border: none;
+  background: none;
+  color: var(--ink-dim);
+  cursor: pointer;
+  padding: 0 .2rem;
+  font-size: 13px;
+}
+
+.sight .drop:hover {
+  color: var(--bad, #f4a9b1);
+}
+
 button, select, input {
   background: rgba(7, 16, 30, .9);
   color: var(--ink);

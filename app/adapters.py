@@ -1,4 +1,4 @@
-"""Provider adapters (docs/specs/ListHoard.spec.md §7).
+"""Provider adapters (the ListHoard specification §7).
 
 Seven provider adapters: the three API providers — TMDB, Trakt, MDBList —
 and the four scraped providers — Letterboxd, TVDB, Rotten Tomatoes and IMDb
@@ -7,7 +7,7 @@ serves a bot-challenge to this vantage, so it quarantines honestly instead
 of pretending to fetch.
 
 Anchors: the arr-consumption MDBList export contract is documented in
-docs/specs/ImportLists.spec.md §3 (content negotiation on user agent).
+the import-lists specification §3 (content negotiation on user agent).
 """
 
 import os

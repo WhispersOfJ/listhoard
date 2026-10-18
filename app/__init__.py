@@ -1,1 +1,1 @@
-"""ListHoard — the list browser and arr importer (docs/specs/ListHoard.spec.md)."""
+"""ListHoard — the list browser and arr importer (the ListHoard specification)."""

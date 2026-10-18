@@ -19,9 +19,15 @@ full add-options surface; every import can be un-imported.
 
 ## Screenshots
 
-The abyss theme renders dark, poster-forward pages. Placeholder — captures of
-the dashboard, browse, list detail and import dialog land here with the first
-1.x cut.
+The abyss theme at work:
+
+![dashboard](assets/dashboard.png)
+
+![list detail](assets/list-detail.png)
+
+![import controls](assets/import-dialog.png)
+
+![health board](assets/health-board.png)
 
 ## Where to go next
 

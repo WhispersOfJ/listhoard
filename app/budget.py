@@ -1,4 +1,4 @@
-"""Provider request budgets (docs/specs/Shippability.spec.md §8).
+"""Provider request budgets (the shippability specification §8).
 
 A Budget is a hard per-provider request cap enforced in code — a quota, NOT
 a failure: an exhausted budget *pauses* that source until its window resets

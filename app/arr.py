@@ -1,12 +1,12 @@
-"""arr + Jellyfin clients (docs/book-of-api anchors cited per call).
+"""arr + Jellyfin clients (the arr/Jellyfin endpoints are named per call).
 
-Radarr: docs/book-of-api/radarr.md — movie (GET/POST), movie/lookup/tmdb,
-tags, movie/DELETE. Sonarr: docs/book-of-api/sonarr.md — series (GET/POST),
-series/lookup, tags. Jellyfin: docs/book-of-api/jellyfin.md —
+Radarr: movie (GET/POST), movie/lookup/tmdb,
+tags, movie/DELETE. Sonarr: series (GET/POST),
+series/lookup, tags. Jellyfin:
 /Users/AuthenticateByName, POST /Collections, POST /Collections/{id}/Items,
 POST /Library/Library/Refresh (BEWARE: the deployed server answers
-/Library/Refresh, not the book's /Library/Library/Refresh — the literal path
-wins, per the MCU spec's §7.6 correction and AGENTS §17 "source wins").
+/Library/Refresh, not the incorrect /Library/Library/Refresh — the literal path
+wins, per the source-wins law (the literal deployed path wins)).
 """
 
 import logging
@@ -22,12 +22,33 @@ import httpx
 log = logging.getLogger("listhoard.arr")
 
 
+_ENV = {
+    "radarr": ("RADARR_BASE_URL", "RADARR_API_KEY"),
+    "sonarr": ("SONARR_BASE_URL", "SONARR_API_KEY"),
+    "jellyfin": ("JELLYFIN_BASE_URL", "JELLYFIN_API_KEY"),
+}
+
+
 def _base() -> dict[str, str]:
     return {
         "radarr": os.environ.get("RADARR_BASE_URL", "http://legends-radarr:7878"),
         "sonarr": os.environ.get("SONARR_BASE_URL", "http://legends-sonarr:8989"),
         "jellyfin": os.environ.get("JELLYFIN_BASE_URL", "http://legends-jellyfin:8096"),
     }
+
+
+def configured(app: Literal["radarr", "sonarr"]) -> bool:
+    """Whether an app is actually wired: both its env names are set.
+
+    The `_base()` built-ins are deployment convenience defaults, not a
+    configured state — a fresh self-hosting user has no arrs at all, and
+    the degrade-honestly contract (Shippability slice 2) forbids calling
+    a dead hostname on every render. Callers treat False as "features
+    disabled, pages still honest"; library() returns {}, profiles() and
+    root_folders() return [] when this is False.
+    """
+    base_env, key_env = _ENV[app]
+    return bool(os.environ.get(base_env)) and bool(os.environ.get(key_env))
 
 
 def _key(name: str) -> str:
@@ -98,6 +119,8 @@ def _call(
 
 
 def library(app: Literal["radarr", "sonarr"]) -> dict[str, dict]:
+    if not configured(app):
+        return {}  # degraded: badges say not-in-library, no call is made
     cache = _lib_cache[app]
     hit = cache.get()
     if hit is not None:
@@ -154,6 +177,8 @@ def lookup(app: Literal["radarr", "sonarr"], item: dict) -> dict | None:
 
 
 def root_folders(app: Literal["radarr", "sonarr"]) -> list[dict]:
+    if not configured(app):
+        return []
     return _call(app, "GET", "/api/v3/rootfolder").json()
 
 
@@ -165,6 +190,8 @@ def ensure_root_folder(app: Literal["radarr", "sonarr"], path: str) -> None:
 
 
 def profiles(app: Literal["radarr", "sonarr"]) -> list[dict]:
+    if not configured(app):
+        return []
     return _call(app, "GET", "/api/v3/qualityprofile").json()
 
 

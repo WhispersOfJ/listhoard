@@ -1,4 +1,4 @@
-"""Pluggable auth (docs/specs/Shippability.spec.md §7).
+"""Pluggable auth (the shippability specification §7).
 
 One `LISTHOARD_AUTH_MODE` env, three modes:
 

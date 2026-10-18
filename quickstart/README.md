@@ -17,6 +17,5 @@ What ships **off** unless you turn it on: explicit content (XXX) sources
 (`LISTHOARD_ENABLE_XXX=on` to opt in), and any preloaded lists (there are none
 — the hoard carries only what you chose; Shippability ruling 8).
 
-Currently the image builds from this repo's source (`build: ..`). When the
-public registry publishing lands (spec T2), this file swaps to a pinned
-`image:` — no other change.
+The release pin is `image: ghcr.io/whispersofj/listhoard:0.2.0` — swap it for
+`build: ..` whenever you want a source build instead.

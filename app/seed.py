@@ -1,11 +1,11 @@
 """Seed catalog loading.
 
 Loads `scripts/listhoard/seed/*.json` (mounted read-only at /app/seed) into the
-catalog: the committed research artifact of docs/specs/ListHoard.spec.md §8.
+catalog: the committed research artifact of the ListHoard specification §8.
 The loader is additive and idempotent: re-running produces no duplicates, and
 a row the JSON no longer mentions is left untouched.
 
-Shippability (docs/specs/Shippability.spec.md §10, ruling 8): a fresh public
+Shippability (the shippability specification §10, ruling 8): a fresh public
 instance ships an **empty catalog** — the seed load is a first-run option, not
 a boot step. `LISTHOARD_SEED_ON_BOOT=off` (the default) registers the source
 slugs only and skips the private research seed; `on` preserves this home

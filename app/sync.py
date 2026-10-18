@@ -1,4 +1,4 @@
-"""Sync engine (docs/specs/ListHoard.spec.md §9).
+"""Sync engine (the ListHoard specification §9).
 
 One scheduled daily pass plus manual per-source/per-list triggers out of the
 UI. Idempotent: dedup happens through `db.resolve_item`, so lists overlapping

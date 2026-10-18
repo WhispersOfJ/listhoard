@@ -1,4 +1,4 @@
-"""Scraped provider adapters (docs/specs/ListHoard.spec.md §7, Phase 2).
+"""Scraped provider adapters (the ListHoard specification §7, Phase 2).
 
 - letterboxd: list pages expose one `data-details-endpoint` per row; each
   film's `/film/<slug>/json/` page carries the ids (`tmdbID`, `name`,

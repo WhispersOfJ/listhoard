@@ -19,6 +19,10 @@
   <label>Search <input name="q" value="{{ q or "" }}"></label>
   <button type="submit">Filter</button>
   <button type="button" id="density-toggle" class="ghost">Density</button>
+  <span id="saved-filters" data-js="saved-sights">
+    <input id="save-filter-name" placeholder="name this sight…" autocomplete="off">
+    <button type="button" id="save-filter" class="ghost">Save sight</button>
+  </span>
   <a class="toggle" href="/browse?toggle={{ 'safe' if show_xxx else 'xxx' }}">
     Explicit: {{ 'on' if show_xxx else 'hidden' }}</a>
 </form>

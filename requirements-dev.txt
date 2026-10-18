@@ -1,0 +1,19 @@
+# Dev/test tooling only — never installed into the ListHoard image.
+# The runtime surface is requirements.txt (ruling 5 of
+# the optimization specification); this file serves the host's suite runs and
+# the dependency-audit workflow. Exact pins, matching the runtime file's style (open
+# item 4: the implementation chose exact pins for consistency).
+#
+# Shippability §9 added the four test families: pytest + fastapi/httpx power
+# the TestClient integration suite, hypothesis fuzzes the scraper parsers,
+# playwright drives the browser E2E (its chromium binary is a separate
+# `python-m playwright install chromium` step, not a pip pin).
+
+ruff==0.17.1
+yamllint==1.38.0
+pip-audit==2.9.0
+pytest==9.1.1
+fastapi==0.146.0
+httpx==0.28.1
+hypothesis==6.170.1
+playwright==1.58.0

@@ -31,6 +31,59 @@
       kind === "lume" ? 6000 : 4200);
   }
 
+  /* --------------------------------------------------------- saved sights */
+  /* The browse filters as named, store-backed sights (Shippability slice 5).
+     Nothing here re-renders data server-side: a sight is a bookmark — a
+     plain ?source/&mediatype/&anime/&q link the server filters on render. */
+  const browseForm = $("#browse-filters");
+  if (browseForm) {
+    const sightsBox = $("#saved-filters");
+    const SIGHTS_KEY = "lh_saved_filters";
+    const sights = () => store.get(SIGHTS_KEY, []);
+    const paintSights = () => {
+      $$('.sight', sightsBox).forEach((el) => el.remove());
+      sights().forEach((s, i) => {
+        const chip = document.createElement('span');
+        chip.className = 'sight';
+        const a = document.createElement('a');
+        a.href = '/browse?' + s.params;
+        a.textContent = s.name;
+        const x = document.createElement('button');
+        x.type = 'button';
+        x.className = 'drop';
+        x.setAttribute('aria-label', 'drop sight ' + s.name);
+        x.textContent = '×';
+        x.addEventListener('click', () => {
+          const left = sights().filter((_, j) => j !== i);
+          store.set(SIGHTS_KEY, left);
+          paintSights();
+        });
+        chip.appendChild(a);
+        chip.appendChild(x);
+        sightsBox.appendChild(chip);
+      });
+    };
+    const saveBtn = $('#save-filter');
+    const nameIn = $('#save-filter-name');
+    saveBtn.addEventListener('click', () => {
+      const params = new URLSearchParams(new FormData(browseForm));
+      ['source', 'mediatype', 'anime', 'q'].forEach((k) => {
+        const v = params.get(k);
+        if (v === null || v === '' || (k === 'anime' && v !== 'true')) params.delete(k);
+      });
+      const qs = params.toString();
+      if (!qs) { toast('nothing to save — set a sight first', 'warn'); return; }
+      const name = (nameIn.value || '').trim() || qs.slice(0, 24);
+      const left = sights().filter((s) => s.name !== name);
+      left.push({ name, params: qs });
+      store.set(SIGHTS_KEY, left);
+      nameIn.value = '';
+      paintSights();
+      toast(name + ' saved', 'lume');
+    });
+    paintSights();
+  }
+
   /* ------------------------------------------------------- job heartbeat */
   if (document.body.dataset.authed === "true") {
     let seenDone = new Set();

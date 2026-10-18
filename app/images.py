@@ -1,4 +1,4 @@
-"""Image cache (docs/specs/ListHoard.spec.md §10).
+"""Image cache (the ListHoard specification §10).
 
 Local, uncapped, demand-populated. One canonical copy per (source id, kind);
 the browser never asks a provider CDN directly.

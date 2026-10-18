@@ -44,6 +44,11 @@ docker compose up -d
 docker compose -f docker-compose.yml -f docker-compose.fullstack.yml up -d
 ```
 
+`docker compose` pulls the pinned image (`ghcr.io/whispersofj/listhoard:0.2.0`)
+straight from the release; building from source also works — the compose
+files are image-pinned, so swap the `image:` for a `build: .` if you want a
+local build.
+
 Open `http://localhost:8675` → the dashboard. Your catalog is **empty by
 design**: paste any provider's list page into *add-list by URL* and the first
 sync fills it — TMDB, Trakt, MDBList, Letterboxd, IMDb, Rotten-Tomatoes and
@@ -64,6 +69,20 @@ Built with mkdocs — `pip install mkdocs-material && mkdocs serve`:
 - [Environment reference](docs/env.md) — every `.env` key
 - [Troubleshooting](docs/troubleshooting.md)
 - [Upgrading](docs/upgrading.md) — semver discipline for the app
+
+## Screenshots
+
+The abyss theme at work (dashboard · browse · list detail · import controls ·
+health board):
+
+<p>
+  <img src="docs/assets/dashboard.png" width="47%" alt="dashboard">
+  <img src="docs/assets/list-detail.png" width="47%" alt="list detail">
+</p>
+<p>
+  <img src="docs/assets/browse.png" width="47%" alt="browse">
+  <img src="docs/assets/import-dialog.png" width="47%" alt="import controls">
+</p>
 
 ## License
 

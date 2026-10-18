@@ -1,10 +1,10 @@
 """ListHoard catalog database: schema and helpers.
 
-The schema matches docs/specs/ListHoard.spec.md §6.4. The app is the only
+The schema matches the ListHoard specification §6.4. The app is the only
 writer of the `listhoard_catalog` database; this module owns the DDL and the
 connection, both idempotent so container restarts are safe.
 
-Refactor note (docs/specs/Optimization.spec.md §7.4): the repeated query
+Refactor note (the optimization specification §7.4): the repeated query
 patterns the UI endpoints used to spell inline now live here as named
 helpers — source health rows, list row, prior imports, import row — so
 main.py routes shape requests, not SQL.
@@ -21,7 +21,7 @@ import psycopg
 
 log = logging.getLogger("listhoard.db")
 
-# Slow-query threshold (docs/specs/Optimization.spec.md §7.5): the cursor
+# Slow-query threshold (the optimization specification §7.5): the cursor
 # wrapper logs any statement above it with its elapsed and a short statement
 # shape. No parameters are ever logged — statement shape only.
 _SLOW_QUERY_MS = float(os.environ.get("LISTHOARD_SLOW_QUERY_MS", "250"))
@@ -165,7 +165,7 @@ CREATE TABLE IF NOT EXISTS source_health (
 ALTER TABLE items ADD COLUMN IF NOT EXISTS note text;
 ALTER TABLE items ADD COLUMN IF NOT EXISTS starred boolean NOT NULL DEFAULT false;
 
--- Shippability slice 2 (docs/specs/Shippability.spec.md §7): sessions live
+-- Shippability slice 2 (the shippability specification §7): sessions live
 -- here for every auth mode (the in-memory set dies), keyed by the token's
 -- SHA-256 — never the raw token. Accounts back local mode only.
 CREATE TABLE IF NOT EXISTS sessions (

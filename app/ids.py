@@ -1,4 +1,4 @@
-"""Arr-usable id resolution for scraped rows (docs/specs/ListHoard.spec.md §9.2).
+"""Arr-usable id resolution for scraped rows (the ListHoard specification §9.2).
 
 Provider ids are translated ON ARRIVAL so the *catalog* carries real,
 dedupable ids rather than doing translation per render. Movies resolve

@@ -1,4 +1,4 @@
-"""Import engine (docs/specs/ListHoard.spec.md §12).
+"""Import engine (the ListHoard specification §12).
 
 Background jobs, strictly sequential (the MCU-run precedent): one add, read
 its response, then the next. Already-present rows skip unless forced;

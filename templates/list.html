@@ -16,7 +16,7 @@
   </p>
 </div>
 
-{% if not running_import %}
+{% if not running_import %}{% if arr_ok %}
 <form method="post" action="/lists/{{ l.id }}/import" class="importer" id="importer">
   <h2>Import the checked rows — {{ app }} options (all prefilled)</h2>
   <input type="hidden" name="item_ids" id="item_ids" value="">
@@ -57,6 +57,11 @@
   <label><input type="checkbox" name="force" value="true"> force (add even if already present)</label>
   <button type="submit">Import checked</button>
 </form>
+{% else %}
+<p class="running">The arr this list targets isn't wired yet — set its
+  <code>BASE_URL</code> and <code>API_KEY</code> in the environment and the
+  import options appear (ruling 4: degraded, never broken).</p>
+{% endif %}
 {% else %}
 <p class="running">An import job is running for this list.
   <a href="/imports/{{ running_import }}">View</a></p>
