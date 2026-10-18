@@ -1,0 +1,26 @@
+name: docs
+
+# Builds and publishes the mkdocs site to gh-pages on every mirror sync of
+# main. The branch itself is never touched by the mirror sync (which pushes
+# main only), so deployment history survives.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - run: pip install mkdocs mkdocs-material
+      - run: |
+          git config user.name "listhoard-docs"
+          git config user.email "listhoard-docs@users.noreply.github.com"
+          mkdocs gh-deploy --force
