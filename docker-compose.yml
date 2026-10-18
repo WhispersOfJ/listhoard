@@ -1,9 +1,10 @@
-# ListHoard quickstart — the ten-minute install (Shippability spec slice 1).
+# ListHoard quickstart — the ten-minute install (Shippability slice 1).
 # Assumes the self-hoster already runs Radarr/Sonarr and has a postgres they
 # can point at; `docker compose up -d` from this directory is the whole story.
 #
-# The image builds from source until the public registry lands (spec T2, later);
-# when it does, this file swaps `build:` for `image: listhoard:<tag>`.
+# The service pin is the release image (ghcr.io/whispersofj/listhoard:<tag>,
+# pinned to the current cut by the packaging pipeline). Prefer a source
+# build? Swap the `image:` line for `build: .` — nothing else changes.
 #
 # Needs the keys below in `.env` (copy `.env.example`). No XXX source ships
 # unless LISTHOARD_ENABLE_XXX is explicitly on (ruling 13). No seed loads
