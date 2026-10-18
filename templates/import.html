@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Import {{ j.import_id if j else "" }}{% endblock %}
+{% block content %}
+{% if missing %}
+<h1>Import not found</h1>
+{% else %}
+<h1>Import {{ j.import_id }} — {{ j.list or "?" }}</h1>
+<p>{{ j.app }} · tag <code>{{ j.tag_label }}</code> · root {{ j.root_folder }}
+   · status <strong id="imp-status">{{ j.status }}</strong></p>
+
+<section class="imp-live" data-import-id="{{ j.import_id }}">
+  <div class="depth-meter wide" role="img" aria-label="import progress">
+    <div class="depth-fill" id="imp-fill"
+      style="width: 0%"></div>
+  </div>
+  <p class="imp-counts" id="imp-counts">
+    added {{ j.added }} · failed {{ j.failed }} · awaiting sonar…
+  </p>
+  <ul class="bucket-ticker" id="imp-buckets">
+    <li data-b="added">added: {{ buckets.get("added", 0) }}</li>
+    <li data-b="skipped-present">skipped-present: {{ buckets.get("skipped-present", 0) }}</li>
+    <li data-b="skipped-unresolvable">skipped-unresolvable: {{ buckets.get("skipped-unresolvable", 0) }}</li>
+    <li data-b="failed">failed: {{ buckets.get("failed", 0) }}</li>
+  </ul>
+  <p id="imp-reissue"></p>
+</section>
+
+<p><a href="/browse">back to browse</a></p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,64 @@
+# ListHoard quickstart — the ten-minute install (Shippability spec slice 1).
+# Assumes the self-hoster already runs Radarr/Sonarr and has a postgres they
+# can point at; `docker compose up -d` from this directory is the whole story.
+#
+# The image builds from source until the public registry lands (spec T2, later);
+# when it does, this file swaps `build:` for `image: listhoard:<tag>`.
+#
+# Needs the keys below in `.env` (copy `.env.example`). No XXX source ships
+# unless LISTHOARD_ENABLE_XXX is explicitly on (ruling 13). No seed loads
+# (ruling 8): the catalog starts empty and the funnel is add-list-by-URL.
+
+services:
+  listhoard:
+    build: .
+    image: listhoard:local
+    container_name: listhoard
+    restart: unless-stopped
+    user: "1000:1000"
+    labels:
+      - autoheal=true
+    environment:
+      TZ: ${TZ}
+      # Your existing postgres (a listhoard_catalog database this user owns).
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-listhoard_catalog}
+      # Your existing arrs (optional but the reason the hoard exists).
+      RADARR_BASE_URL: ${RADARR_BASE_URL}
+      SONARR_BASE_URL: ${SONARR_BASE_URL}
+      RADARR_API_KEY: ${RADARR_API_KEY}
+      SONARR_API_KEY: ${SONARR_API_KEY}
+      # Optional: Jellyfin powers auth + badges when present (ruling 4).
+      JELLYFIN_BASE_URL: ${JELLYFIN_BASE_URL}
+      JELLYFIN_API_KEY: ${JELLYFIN_API_KEY}
+      # Auth mode: jellyfin | local | token (spec §7; unset = first-run setup).
+      LISTHOARD_AUTH_MODE: ${LISTHOARD_AUTH_MODE:-}
+      LISTHOARD_ADMIN_TOKEN: ${LISTHOARD_ADMIN_TOKEN:-}
+      # The only required provider key (free signup at themoviedb.org — ruling 15).
+      TMDB_API_KEY: ${TMDB_API_KEY}
+      TRAKT_CLIENT_ID: ${TRAKT_CLIENT_ID:-}
+      MDBLIST_API_KEY: ${MDBLIST_API_KEY:-}
+      # Behaviour knobs (the packaged docs).
+      LISTHOARD_HUGE_LIST_THRESHOLD: ${LISTHOARD_HUGE_LIST_THRESHOLD:-5000}
+      LISTHOARD_SEED_ON_BOOT: "off"          # ruling 8: empty catalog by default
+      LISTHOARD_ENABLE_XXX: "off"            # ruling 13
+      LISTHOARD_SLOW_REQUEST_MS: ${LISTHOARD_SLOW_REQUEST_MS:-1000}
+      LISTHOARD_SLOW_QUERY_MS: ${LISTHOARD_SLOW_QUERY_MS:-500}
+    healthcheck:
+      test: ["CMD-SHELL", "python3 -c 'import urllib.request; urllib.request.urlopen(\"http://127.0.0.1:8675/healthz\").read()'"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    volumes:
+      - listhoard-config:/data/config
+      - listhoard-images:/data/images
+    ports:
+      - "${LISTHOARD_PORT:-8675}:8675"
+
+volumes:
+  listhoard-config:
+  listhoard-images:

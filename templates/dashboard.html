@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}ListHoard — dashboard{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+<section class="stats">
+  <div><strong>{{ totals.items }}</strong> catalog items</div>
+  <div><strong>{{ totals.synced }}</strong> of {{ totals.lists }} lists synced</div>
+</section>
+
+{% if totals.lists == 0 %}
+<section class="first-run" aria-label="First-run guide">
+  <h2>Your hoard is empty</h2>
+  <p>Paste any provider's list page into <a href="/add-list">add-list by URL</a> —
+  it registers the list, then its next sync fills the catalog. Books, movies or
+  shows: anything the seven sources serve.</p>
+</section>
+{% endif %}
+
+<section class="instruments">
+  <h2>Instrument panel</h2>
+  <div class="radar">
+    {% for s in sources %}
+    <span class="probe probe-{{ s.slug }}{% if s.quarantined %} quarantined{% endif %}"
+      title="{{ s.slug }} — {{ s.last_ok_at or 'never synced' }}{% if s.last_error %} — {{ s.last_error }}{% endif %}">
+      <i></i>{{ s.slug }}</span>
+    {% endfor %}
+  </div>      <div class="depth-meter" role="img"
+        aria-label="{{ totals.synced }} of {{ totals.lists }} lists synced">
+      <div class="depth-fill" style="width: {{ (100 * totals.synced / totals.lists) | round(1) if totals.lists else 0 }}%"></div>
+</div>
+</section>
+
+{% if running_jobs %}
+<section class="jobs">
+  <h2>Hauls in the water</h2>
+  <table id="job-board">
+    <thead><tr><th>Job</th><th>App</th><th>Progress</th><th>Elapsed</th></tr></thead>
+    <tbody>
+    {% for j in running_jobs %}
+      <tr data-import-id="{{ j.import_id }}">
+        <td><a href="/imports/{{ j.import_id }}">import {{ j.import_id }}</a></td>
+        <td>{{ j.app }}</td>
+        <td>{{ j.added }} added · {{ j.skipped }} skipped · {{ j.failed }} failed of {{ j.total }}</td>
+        <td>{{ j.elapsed }}s</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+{% endif %}
+
+<h2>Source health board</h2>
+<p><a href="/add-list">Add a list by URL</a> — paste any provider's list page; the crawler for its catalog lives in the Discover column.</p>
+<table id="health">
+  <thead><tr><th>Source</th><th>Lists</th><th>Last OK</th><th>Last error</th><th>Budget (hour)</th><th>Sync now</th><th>Discover</th></tr></thead>
+  <tbody>
+  {% for s in sources %}
+  <tr data-src="{{ s.slug }}">
+    <td><span class="src src-{{ s.slug }}">{{ s.slug }}</span></td>
+      <td>{{ s.lists }}</td>
+      <td>{{ s.last_ok_at or "never" }}</td>
+      <td class="{% if s.last_error %}bad{% endif %}">{{ s.last_error or "" }}</td>
+      <td>
+        <span class="budget-bar" title="provider requests this hour — a spent budget pauses, never quarantines">
+          <span class="fill{{ ' spent' if not s.budget.available }}"
+            style="width: {{ (100 * s.budget.hour_used / s.budget.hour_limit) | round(1) }}%"></span>
+        </span>
+        <small>{{ s.budget.hour_used }}/{{ s.budget.hour_limit }}</small>
+      </td>
+      <td>
+        <form method="post" action="/sources/{{ s.slug }}/sync">
+          <button type="submit">Sync</button>
+        </form>
+      </td>
+      <td>
+        <form method="post" action="/sources/{{ s.slug }}/discover">
+          <button type="submit">Discover</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+<h2>Recent imports</h2>
+<ul>
+{% for i in recent %}
+  <li><a href="/imports/{{ i.import_id }}">{{ i.list or "?" }}</a>
+      → {{ i.app }} · tag <code>{{ i.tag_label }}</code>
+      · added {{ i.added }} / failed {{ i.failed }} · {{ i.status }}</li>
+{% else %}
+  <li>No imports yet — start one from a list page.</li>
+{% endfor %}
+</ul>
+{% endblock %}

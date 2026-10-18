@@ -1,0 +1,35 @@
+# Fullstack quickstart overlay (Shippability spec ruling 9): the arr-less
+# user's embedded postgres. `docker compose -f docker-compose.yml
+# -f docker-compose.fullstack.yml up -d` gives you a self-contained ListHoard
+# with its own database — no external postgres to own.
+#
+# For real use the data lives in the `pg-data` named volume; keep it backed up
+# if the import history matters to you (the catalog is re-derivable, the
+# history is not).
+services:
+  listhoard:
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: listhoard-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-listhoard_catalog}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB:-listhoard_catalog}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+
+volumes:
+  pg-data:

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}ListHoard — descent{% endblock %}
+{% block content %}
+<section class="airlock">
+  <span class="hatch-scope"></span>
+  <h1>Sign in</h1>
+  <p class="descent">Airlock · -1,867 m · no light beyond this point</p>
+  {% if error == '1' %}<p class="error">Sign-in failed — the hoard didn't accept those credentials.</p>
+  {% elif error == '2' %}<p class="error">No sign-in path is configured. Set LISTHOARD_AUTH_MODE (jellyfin, local, or token) or provide your Jellyfin connection.</p>{% endif %}
+  {% if auth_unset %}
+  <p>No sign-in path is configured yet (Shippability §7): set <code>LISTHOARD_AUTH_MODE</code>
+  to <code>jellyfin</code>, <code>local</code>, or <code>token</code> and restart.</p>
+  {% else %}
+  <p>Authenticate with the hoard's configured sign-in path (Jellyfin, a local account, or the shared token as the password).</p>
+  {% endif %}
+  <form method="post" action="/login">
+    <label>Username <input name="user" autofocus></label>
+    <label>Password <input name="password" type="password"></label>
+    <button type="submit">Descend</button>
+  </form>
+  <p class="note">The catalog keeps lists from seven sources in the dark.
+  Bring credentials; the hoard itself stays unafraid.</p>
+</section>
+{% endblock %}

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}ListHoard{% endblock %}</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%2302060e'/%3E%3Ccircle cx='16' cy='13' r='5' fill='%234ef0cf'/%3E%3Ccircle cx='16' cy='13' r='9' fill='none' stroke='%234ef0cf' stroke-opacity='.35'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/static/style.css">
+  {% if request.url.path not in ["/login", "/logout"] %}
+  <script src="/static/app.js" defer></script>
+  {% endif %}
+</head>
+<body data-authed="{{ 'true' if request.url.path not in ['/login', '/logout'] else 'false' }}">
+  <a class="skip" href="#hoard-main">Skip to the hold</a>
+  <nav>
+    <a href="/" class="brand"><span class="orb"></span>ListHoard</a>
+    <a href="/">Dashboard</a>
+    <a href="/browse">Browse</a>
+    <a href="/logout">Logout</a>
+  </nav>
+  {% if request.url.path != "/login" %}<div class="depth-gauge"></div>{% endif %}
+  <main id="hoard-main">
+    {% block content %}{% endblock %}
+  </main>
+  <div id="toasts" aria-live="polite"></div>
+  <div id="drawer" class="drawer" hidden></div>
+  <div id="preview" class="preview-card" hidden></div>
+</body>
+</html>

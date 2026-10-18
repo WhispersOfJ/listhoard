@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}ListHoard — browse{% endblock %}
+{% block content %}
+<h1>Browse</h1>
+<form method="get" action="/browse" class="filters" id="browse-filters">
+  <label>Source
+    <select name="source">
+      <option value="">— any —</option>
+      {% for s in sources %}{% if s == source %}<option selected>{% else %}
+      <option>{% endif %}{{ s }}</option>{% endfor %}
+    </select></label>
+  <label>Media
+    <select name="mediatype">
+      <option value="">— any —</option>
+      {% for v in ["movie", "show"] %}<option value="{{ v }}"
+        {% if mediatype == v %}selected{% endif %}>{{ v }}</option>{% endfor %}
+    </select></label>
+  <label><input type="checkbox" name="anime" value="true" {% if anime %}checked{% endif %}> anime</label>
+  <label>Search <input name="q" value="{{ q or "" }}"></label>
+  <button type="submit">Filter</button>
+  <button type="button" id="density-toggle" class="ghost">Density</button>
+  <a class="toggle" href="/browse?toggle={{ 'safe' if show_xxx else 'xxx' }}">
+    Explicit: {{ 'on' if show_xxx else 'hidden' }}</a>
+</form>
+<table id="browse-table" data-js="sortable">
+  <thead><tr>
+    <th data-sort="name">Name</th>
+    <th data-sort="source">Source</th>
+    <th data-sort="type">Type</th>
+    <th>Flags</th>
+    <th data-sort="num">Items</th>
+    <th data-sort="text">Last synced</th>
+    <th>Status</th>
+  </tr></thead>
+  <tbody>
+  {% for r in rows %}
+    <tr data-src="{{ r.source }}">
+      <td><a href="/lists/{{ r.id }}">{{ r.name }}</a></td>
+      <td><span class="src src-{{ r.source }}">{{ r.source }}</span></td>
+      <td>{{ r.mediatype }}</td>
+      <td>{% if r.anime %}<span class="flag anime">anime</span>{% endif %}
+          {% if r.xxx %}<span class="flag xxx">XXX</span>{% endif %}</td>
+      <td>{{ r.item_count }}</td>
+      <td>{{ r.last_synced or "never" }}</td>
+      <td class="{% if r.last_error %}bad{% endif %}">{{ r.last_error or "ok" }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+<p>
+  {% if page > 1 %}<a href="?page={{ page - 1 }}&source={{ source }}&mediatype={{ mediatype }}&anime={{ anime }}&q={{ q }}">&laquo; prev</a>{% endif %}
+  page {{ page }} / {{ pages }}
+  {% if page < pages %}<a id="next-page" href="?page={{ page + 1 }}&source={{ source }}&mediatype={{ mediatype }}&anime={{ anime }}&q={{ q }}">next &raquo;</a>{% endif %}
+</p>
+{% if page < pages %}<link rel="prefetch" href="?page={{ page + 1 }}&source={{ source }}&mediatype={{ mediatype }}&anime={{ anime }}&q={{ q }}">{% endif %}
+{% endblock %}

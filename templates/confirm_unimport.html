@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Confirm unimport{% endblock %}
+{% block content %}
+<h1>Confirm unimport</h1>
+<p>This will <strong>remove {{ objs|length }} of this import's entries from
+{{ app }}</strong>, identified by tag <code>{{ tag_label }}</code>. The media
+content itself is not removed (deleteFiles=false); only the library entry is
+removed.</p>
+<table>
+  <thead><tr><th>arr id</th><th>monitored</th></tr></thead>
+  <tbody>
+  {% for o in objs %}
+  <tr><td>{{ o.id }}</td><td>{{ o.monitored }}</td></tr>
+  {% else %}
+  <tr><td colspan="2">Nothing tagged with this tag in {{ app }}.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+<form method="post" action="/lists/{{ list_id }}/unimport/{{ import_id }}">
+  <button type="submit" class="danger">Confirm unimport ({{ objs|length }} entries)</button>
+</form>
+<a href="/lists/{{ list_id }}">Cancel</a>
+{% endblock %}

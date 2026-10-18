@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}ListHoard — add a list{% endblock %}
+{% block content %}
+<h1>Add a list by URL</h1>
+<form method="post" action="/add-list" class="add-list-form">
+  <input type="url" name="url" value="{{ url }}" required
+    placeholder="https://www.themoviedb.org/list/… · trakt.tv/users/…/lists/… · mdblist.com/lists/user/slug · letterboxd.com/user/list/…">
+  <button type="submit">Hoist it</button>
+</form>
+{% if result %}
+  {% if result.ok %}
+    <p class="ok">Catalogued as <code>{{ result.source }} / {{ result.external_id }}</code>
+    {% if result.created %}— a sync is already in the water.{% else %}— it was already in the hoard.{% endif %}</p>
+    <p><a href="/">Back to the bridge</a></p>
+  {% else %}
+    <p class="bad">{{ result.reason }}</p>
+  {% endif %}
+{% endif %}
+{% endblock %}

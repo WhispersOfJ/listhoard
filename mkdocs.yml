@@ -1,0 +1,15 @@
+site_name: ListHoard
+site_description: Self-hosted browser and one-click importer for public movie/TV lists
+repo_url: https://github.com/WhispersOfJ/listhoard
+repo_name: WhispersOfJ/listhoard
+theme:
+  name: material
+  palette:
+    primary: deep blue
+    accent: teal
+nav:
+  - Home: index.md
+  - Providers: providers.md
+  - Configuration: env.md
+  - Troubleshooting: troubleshooting.md
+  - Upgrading: upgrading.md

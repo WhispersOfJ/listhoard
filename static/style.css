@@ -1,0 +1,772 @@
+/* ListHoard — the abyss theme.
+   Above 200 m there is light; below 1,000 m none survives but what the
+   creatures carry themselves. The catalog lives down here: near-black
+   water, bioluminescent signage, and everything unknown until it drifts
+   past the lure. Pure CSS — no external assets, no SPA toolchain. */
+
+:root {
+  font-family: system-ui, sans-serif;
+
+  /* water column, surface -> trench */
+  --surf: #0a1c36;
+  --mid: #051226;
+  --trench: #02060e;
+  --hull: rgba(9, 20, 38, .78);        /* translucent pressure hull */
+  --hull-line: rgba(84, 226, 202, .16);
+  --line: rgba(120, 168, 220, .14);
+
+  /* bioluminescence */
+  --lume: #4ef0cf;                     /* the lure */
+  --lume-dim: #2a9c8b;
+  --jelly: #b18cf7;                    /* jellyfish violet */
+  --vent: #ff8a5c;                     /* hot-vent orange */
+  --danger: #e0656f;                   /* blood-red of the deep */
+
+  --ink: #ccd8e8;
+  --ink-bright: #f0f6fd;
+  --ink-dim: #8aa2c0;  /* raised for WCAG-ish contrast on trench water */
+
+  font-size: 14px;
+}
+
+* { box-sizing: border-box; }
+
+html { height: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  background:
+    radial-gradient(120% 60% at 50% -10%, rgba(120, 180, 255, .10), transparent 60%),
+    linear-gradient(180deg, var(--surf) 0%, var(--mid) 34%, var(--trench) 78%, #010409 100%);
+  background-attachment: fixed;
+}
+
+/* Light shafts — thin sunbeams dying a few hundred pixels down. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    linear-gradient(75deg,
+      transparent 12%, rgba(140, 200, 255, .055) 15%,
+      transparent 22%, transparent 44%,
+      rgba(140, 200, 255, .04) 48%, transparent 55%),
+    linear-gradient(105deg,
+      transparent 62%, rgba(140, 200, 255, .05) 66%, transparent 74%);
+  mask-image: linear-gradient(180deg, #000 0%, transparent 55%);
+}
+
+/* Marine snow — slow drifting specks, two parallax strata. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    radial-gradient(1.2px 1.2px at 20% 30%, rgba(190, 230, 255, .35) 50%, transparent 51%),
+    radial-gradient(1px 1px at 70% 65%,  rgba(160, 220, 255, .25) 50%, transparent 51%),
+    radial-gradient(1.6px 1.6px at 45% 85%, rgba(190, 230, 255, .28) 50%, transparent 51%),
+    radial-gradient(1px 1px at 85% 20%,  rgba(140, 200, 255, .3) 50%, transparent 51%),
+    radial-gradient(1.3px 1.3px at 10% 70%, rgba(170, 225, 255, .22) 50%, transparent 51%);
+  background-size: 420px 420px, 640px 640px, 820px 820px, 520px 520px, 940px 940px;
+  animation: snow 84s linear infinite;
+  opacity: .7;
+}
+
+@keyframes snow {
+  from { background-position: 0 0, 0 0, 0 0, 0 0, 0 0; }
+  to   { background-position: 0 420px, 0 -640px, 0 820px, 0 -520px, 0 940px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::after { animation: none; }
+}
+
+::selection { background: rgba(78, 240, 207, .25); }
+
+a { color: var(--lume); text-decoration: none; }
+a:hover { color: #8ff5dd; text-shadow: 0 0 12px rgba(78, 240, 207, .5); }
+
+nav {
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
+  padding: .75rem 1.2rem;
+  background: rgba(4, 10, 20, .72);
+  border-bottom: 1px solid var(--hull-line);
+  backdrop-filter: blur(10px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+nav a { color: var(--ink); letter-spacing: .02em; }
+nav a:hover { color: var(--ink-bright); text-shadow: none; }
+nav .brand {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  font-size: 12.5px;
+  color: var(--ink-bright);
+}
+
+/* The lure: an anglerfish's borrowed light. It blinks. The blink is not
+   perfectly regular — out here, regular means machinery. */
+.orb {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #eafffa, var(--lume) 45%, var(--lume-dim) 75%);
+  box-shadow: 0 0 8px rgba(78, 240, 207, .9), 0 0 26px rgba(78, 240, 207, .45);
+  animation: lure 5.4s ease-in-out infinite;
+}
+
+@keyframes lure {
+  0%, 100% { opacity: 1; box-shadow: 0 0 8px rgba(78, 240, 207, .9), 0 0 26px rgba(78, 240, 207, .45); }
+  41% { opacity: 1; }
+  44% { opacity: .25; box-shadow: 0 0 2px rgba(78, 240, 207, .4); }
+  47% { opacity: 1; box-shadow: 0 0 8px rgba(78, 240, 207, .9), 0 0 26px rgba(78, 240, 207, .45); }
+  63% { opacity: .55; }
+  66% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .orb { animation: none; }
+}
+
+main { max-width: 1100px; margin: auto; padding: 1.4rem 1.2rem 4rem; }
+
+h1, h2 {
+  color: var(--ink-bright);
+  font-weight: 600;
+  letter-spacing: .04em;
+  margin: .6rem 0 .5rem;
+}
+
+h1 {
+  font-size: 20px;
+  text-transform: none;
+}
+
+h1::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-right: .6rem;
+  vertical-align: 2px;
+  background: var(--lume);
+  box-shadow: 0 0 9px rgba(78, 240, 207, .8);
+  opacity: .85;
+}
+
+h2 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: .22em;
+  color: var(--ink-dim);
+  margin-top: 1.8rem;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: .45rem;
+}
+
+small { color: var(--ink-dim); font-weight: 400; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: .7rem 0 1rem;
+  background: var(--hull);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, .45);
+}
+
+/* Descend while reading: rows get darker the further down you go. */
+tbody tr { border-bottom: 1px solid var(--line); }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover td {
+  background: rgba(78, 240, 207, .05);
+  box-shadow: inset 2px 0 0 var(--lume-dim);
+}
+
+th {
+  text-align: left;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: .18em;
+  color: var(--ink-dim);
+  padding: .55rem .7rem;
+  background: rgba(6, 14, 27, .85);
+  border-bottom: 1px solid var(--hull-line);
+}
+
+td {
+  padding: .45rem .7rem;
+  vertical-align: middle;
+}
+
+tbody tr:nth-child(even) td { background: rgba(2, 8, 16, .35); }
+
+th, td { text-align: left; }
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .8rem;
+  margin: .6rem 0 1rem;
+}
+
+.stats > div {
+  background: var(--hull);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: .8rem 1.2rem;
+  font-size: 12.5px;
+  color: var(--ink-dim);
+  letter-spacing: .05em;
+}
+
+.stats strong {
+  display: block;
+  font-size: 22px;
+  color: var(--ink-bright);
+  letter-spacing: .02em;
+  text-shadow: 0 0 18px rgba(78, 240, 207, .18);
+}
+
+/* the descent strip under the nav — where am I in the water column */
+.depth-gauge {
+  height: 3px;
+  background: linear-gradient(90deg,
+    var(--lume) 0%, var(--jelly) 30%,
+    var(--mid) 60%, var(--trench) 100%);
+  opacity: .5;
+}
+
+.filters, .importer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .8rem;
+  align-items: center;
+  background: var(--hull);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: .7rem .9rem;
+  margin: .6rem 0;
+}
+
+.importer {
+  border-color: var(--hull-line);
+  box-shadow: 0 0 0 1px rgba(78, 240, 207, .05), 0 18px 50px rgba(0, 0, 0, .5);
+}
+
+.importer h2 {
+  width: 100%;
+  margin: .2rem 0 .4rem;
+  border-bottom: none;
+  color: var(--ink-dim);
+}
+
+.importer label {
+  display: inline-flex;
+  gap: .35rem;
+  align-items: center;
+  font-size: 11.5px;
+  color: var(--ink-dim);
+  letter-spacing: .05em;
+}
+
+button, select, input {
+  background: rgba(7, 16, 30, .9);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: .3rem .6rem;
+  font: inherit;
+  transition: border-color .15s, box-shadow .15s;
+}
+
+button {
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  font-size: 11px;
+  color: var(--lume);
+  border-color: rgba(78, 240, 207, .25);
+}
+
+button:hover {
+  border-color: var(--lume);
+  box-shadow: 0 0 14px rgba(78, 240, 207, .25), inset 0 0 10px rgba(78, 240, 207, .08);
+  color: #a9f7e7;
+}
+
+input:focus, select:focus, button:focus-visible {
+  outline: none;
+  border-color: var(--lume);
+  box-shadow: 0 0 0 1px rgba(78, 240, 207, .35);
+}
+
+button.danger, .btn.danger {
+  color: #ffb9c0;
+  border-color: rgba(224, 101, 111, .4);
+  background: rgba(60, 12, 18, .6);
+}
+
+button.danger:hover, .btn.danger:hover {
+  border-color: var(--danger);
+  box-shadow: 0 0 14px rgba(224, 101, 111, .28);
+  color: #ffd6da;
+}
+
+input[type="checkbox"], input[type="checkbox"]:focus {
+  accent-color: var(--lume);
+  box-shadow: none;
+  width: 15px;
+  height: 15px;
+}
+
+/* census flags — the tags that bioprobe what you found */
+.flag, .badge {
+  display: inline-block;
+  padding: .08rem .45rem;
+  border-radius: 3px;
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  border: 1px solid transparent;
+}
+
+.flag.anime {
+  background: rgba(177, 140, 247, .1);
+  border-color: rgba(177, 140, 247, .35);
+  color: #cdb9fb;
+}
+
+.flag.xxx {
+  background: rgba(224, 101, 111, .09);
+  border-color: rgba(224, 101, 111, .35);
+  color: #f4a9b1;
+}
+
+.badge.in {
+  background: rgba(78, 240, 207, .08);
+  border-color: rgba(78, 240, 207, .3);
+  color: #9ef5e2;
+}
+
+.badge.off {
+  background: rgba(255, 138, 92, .07);
+  border-color: rgba(255, 138, 92, .3);
+  color: #ffb98f;
+}
+
+.badge.no { color: var(--ink-dim); letter-spacing: .2em; }
+
+ul { padding-left: 1.1rem; }
+li { margin: .25rem 0; line-height: 1.55; }
+
+.hint { color: var(--ink-dim); font-size: 12px; }
+
+.error {
+  color: #f298a0;
+  padding: .5rem .8rem;
+  border: 1px solid rgba(224, 101, 111, .3);
+  border-radius: 8px;
+  background: rgba(224, 101, 111, .06);
+  display: inline-block;
+}
+
+.running { color: #ffc9a0; }
+
+/* a shoreline below everything — the trench floor */
+main::after {
+  content: "— the light stops here —";
+  display: block;
+  margin-top: 3.2rem;
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: .5em;
+  text-transform: uppercase;
+  color: rgba(109, 132, 163, .5);
+}
+
+img { border-radius: 4px; box-shadow: 0 4px 14px rgba(0, 0, 0, .5); }
+
+code {
+  background: rgba(7, 16, 30, .9);
+  border: 1px solid var(--line);
+  color: #9ef5e2;
+  padding: .05rem .3rem;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+/* the airlock — sign-in page */
+.airlock {
+  max-width: 420px;
+  margin: 9vh auto 0;
+  background: var(--hull);
+  border: 1px solid var(--hull-line);
+  border-radius: 14px;
+  padding: 1.8rem 2rem 2rem;
+  box-shadow:
+    0 0 0 1px rgba(78, 240, 207, .04),
+    0 30px 80px rgba(0, 0, 0, .6);
+}
+
+.airlock .hatch-scope {
+  width: 66px;
+  height: 66px;
+  margin: 0 auto 1.2rem;
+  border-radius: 50%;
+  display: block;
+  border: 2px solid rgba(78, 240, 207, .35);
+  position: relative;
+  box-shadow: 0 0 24px rgba(78, 240, 207, .12), inset 0 0 18px rgba(78, 240, 207, .08);
+}
+
+.airlock .hatch-scope::before {
+  content: "";
+  position: absolute;
+  inset: 11px;
+  border-radius: 50%;
+  border: 1px dashed rgba(120, 168, 220, .3);
+}
+
+.airlock .hatch-scope::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px;
+  border-radius: 50%;
+  background: var(--lume);
+  box-shadow: 0 0 12px rgba(78, 240, 207, .9);
+}
+
+.airlock h1 { text-align: center; }
+.airlock h1::before { display: none; }
+
+.airlock .descent {
+  text-align: center;
+  font-size: 10.5px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin: 0 0 1.4rem;
+}
+
+.airlock form {
+  display: flex;
+  flex-direction: column;
+  gap: .8rem;
+}
+
+.airlock label {
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+  font-size: 11px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+.airlock button {
+  margin-top: .4rem;
+  padding: .55rem;
+}
+
+.airlock .note {
+  margin: 1.1rem 0 0;
+  text-align: center;
+  font-size: 12px;
+  color: var(--ink-dim);
+  line-height: 1.6;
+}
+
+/* ---- the census bench and its instruments (ListHoard-UX §5) ----------- */
+
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--lume);
+  color: var(--trench);
+  padding: .35rem .8rem;
+  border-radius: 0 0 6px 6px;
+  z-index: 100;
+}
+.skip:focus { left: 8px; }
+
+.bench-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .55rem;
+  align-items: center;
+  background: var(--hull);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: .6rem .8rem;
+  margin: .5rem 0 .9rem;
+  font-size: 11.5px;
+}
+
+.bench-tools .hint { width: 100%; margin: 0 0 .3rem; }
+.bench-tools button.ghost {
+  background: transparent;
+  border-color: var(--line);
+  color: var(--ink-dim);
+}
+.bench-tools button.active {
+  color: var(--trench);
+  background: var(--lume);
+  border-color: var(--lume);
+  box-shadow: 0 0 14px rgba(78, 240, 207, .4);
+}
+.bench-tools button.active:hover { color: var(--trench); }
+
+.sel-count {
+  padding: .2rem .6rem;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  color: var(--lume);
+  letter-spacing: .06em;
+}
+
+/* table chrome: sticky header under the sonar-nav, sorting orbs */
+#items-table thead th, table[data-js] thead th { position: sticky; top: 44px; z-index: 5; }
+
+th[data-sort] { cursor: pointer; user-select: none; }
+th[data-sort]:hover { color: var(--ink-bright); }
+th.sorted-asc::after { content: " ▲"; color: var(--lume); }
+th.sorted-desc::after { content: " ▼"; color: var(--lume); }
+
+/* compact density — the hold squeezes */
+body.dense td { padding: .18rem .5rem; font-size: 12.5px;
+                line-height: 1.25; }
+body.dense td.col-art img { width: 32px; }
+body.dense .importer label { display: none; }
+
+tr.lit td { background: rgba(78, 240, 207, .09) !important;
+            box-shadow: inset 2px 0 0 var(--lume) !important; }
+
+.star { color: #ffd77a; text-shadow: 0 0 8px rgba(255, 215, 122, .5); }
+.note-mark { color: var(--jelly); opacity: .8; }
+button.star-btn.active { color: #ffd77a; border-color: rgba(255, 215, 122, .5); }
+
+.row-actions { text-align: right; white-space: nowrap; }
+.row-actions .act { padding: .15rem .4rem; font-size: 13px; }
+
+/* source hues — one color each, applied by class everywhere */
+.src {
+  display: inline-block;
+  padding: .1rem .5rem;
+  border-radius: 3px;
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  border: 1px solid;
+}
+.src-tmdb           { color: #9ecfff; border-color: rgba(158, 207, 255, .4); }
+.src-trakt          { color: #ff8b93; border-color: rgba(255, 139, 147, .4); }
+.src-mdblist        { color: #9ef5a3; border-color: rgba(158, 245, 163, .4); }
+.src-letterboxd     { color: #9ef5e2; border-color: rgba(158, 245, 226, .4); }
+.src-imdb           { color: #ffd77a; border-color: rgba(255, 215, 122, .4); }
+.src-rottentomatoes { color: #ffb98f; border-color: rgba(255, 185, 143, .4); }
+.src-tvdb           { color: #cdb9fb; border-color: rgba(205, 185, 251, .4); }
+
+/* instrument panel on the dashboard */
+.instruments { margin: .6rem 0; }
+.radar { display: flex; flex-wrap: wrap; gap: .5rem; margin: .4rem 0 .6rem; }
+.probe {
+  display: inline-flex; align-items: center; gap: .4rem;
+  padding: .2rem .6rem;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  font-size: 11px;
+  color: var(--ink-dim);
+}
+.probe i {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--lume);
+  box-shadow: 0 0 8px rgba(78, 240, 207, .8);
+  animation: sonar 3.4s ease-in-out infinite;
+}
+.probe.quarantined i { background: var(--danger); box-shadow: 0 0 8px rgba(224, 101, 111, .8); }
+.probe.probe-trakt i      { background: #ff8b93; box-shadow: 0 0 8px rgba(255,139,147,.7); }
+.probe.probe-mdblist i    { background: #9ef5a3; box-shadow: 0 0 8px rgba(158,245,163,.7); }
+.probe.probe-letterboxd i { background: #9ef5e2; box-shadow: 0 0 8px rgba(158,245,226,.7); }
+.probe.probe-imdb i       { background: #ffd77a; box-shadow: 0 0 8px rgba(255,215,122,.7); }
+.probe.probe-rottentomatoes i { background: #ffb98f; box-shadow: 0 0 8px rgba(255,185,143,.7); }
+.probe.probe-tvdb i       { background: #cdb9fb; box-shadow: 0 0 8px rgba(205,185,251,.7); }
+
+@keyframes sonar {
+  0%, 100% { opacity: 1; } 50% { opacity: .4; }
+}
+
+.depth-meter {
+  height: 6px;
+  border-radius: 4px;
+  background: rgba(120, 168, 220, .12);
+  overflow: hidden;
+}
+.depth-meter.wide { height: 10px; margin: .8rem 0; }
+.depth-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--lume), var(--lume-dim));
+  box-shadow: 0 0 12px rgba(78, 240, 207, .5);
+  transition: width .8s cubic-bezier(.2, .8, .2, 1);
+}
+
+/* Provider budget bar (Shippability §8): the health board's used/limit view;
+   shares the depth-meter geometry, warns hot with the flag color at 80%. */
+.budget-bar {
+  display: inline-block;
+  width: 72px;
+  height: 6px;
+  border-radius: 4px;
+  background: rgba(120, 168, 220, .12);
+  overflow: hidden;
+  vertical-align: middle;
+}
+.budget-bar .fill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--lume), var(--lume-dim));
+  transition: width .4s ease;
+}
+.budget-bar .fill.hot { background: rgba(224, 101, 111, .75); }
+.budget-bar .fill.spent { background: rgba(224, 101, 111, .9); }
+.budget-bar + small { color: var(--ink-dim); margin-left: .35em; }
+
+/* the drawer: a side hatch onto the item */
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: min(430px, 92vw);
+  height: 100vh;
+  overflow-y: auto;
+  background: linear-gradient(180deg, rgba(10, 28, 54, .97), rgba(2, 6, 14, .98));
+  border-left: 1px solid var(--hull-line);
+  box-shadow: -30px 0 80px rgba(0, 0, 0, .7);
+  padding: 1.4rem 1.6rem 3rem;
+  z-index: 60;
+  animation: drawer-in .25s cubic-bezier(.2, .8, .2, 1);
+}
+.drawer h3 { color: var(--ink-bright); letter-spacing: .03em; }
+.drawer .ids a { display: inline-block; margin-right: .4rem; }
+.drawer h4 {
+  font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--ink-dim); margin: 1.2rem 0 .3rem;
+}
+.drawer textarea { width: 100%; margin-top: .4rem; }
+.drawer .drawer-close { margin-top: 1.2rem; }
+
+@keyframes drawer-in {
+  from { transform: translateX(40px); opacity: 0; }
+  to   { transform: none; opacity: 1; }
+}
+
+.note-box summary { cursor: pointer; color: var(--ink-dim); font-size: 12px; }
+
+/* the hover sight (backdrop alongside the poster) */
+.preview-card {
+  position: absolute;
+  width: 300px;
+  padding: .5rem;
+  background: var(--hull);
+  border: 1px solid var(--hull-line);
+  border-radius: 10px;
+  box-shadow: 0 40px 90px rgba(0, 0, 0, .7);
+  z-index: 55;
+  pointer-events: none;
+}
+.preview-card img { width: 100%; border-radius: 6px; display: block; }
+.preview-card p { margin: .4rem 0 0; color: var(--ink-bright); font-size: 12.5px; }
+
+/* toasts — the radio buoy */
+#toasts {
+  position: fixed;
+  bottom: 1.2rem;
+  right: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  z-index: 80;
+  max-width: 340px;
+}
+.toast {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .3s, transform .3s;
+  background: var(--hull);
+  border: 1px solid var(--hull-line);
+  border-left: 3px solid var(--lume);
+  border-radius: 8px;
+  padding: .55rem .9rem;
+  font-size: 12.5px;
+  color: var(--ink);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, .55);
+}
+.toast.arrived { opacity: 1; transform: none; }
+.toast.warn   { border-left-color: var(--vent); }
+.toast.info   { border-left-color: var(--jelly); }
+.toast.lume   { border-left-color: var(--lume); box-shadow: 0 0 30px rgba(78, 240, 207, .25), 0 20px 50px rgba(0, 0, 0, .55); }
+
+/* lume reactions */
+.buckets li.flare { animation: flare .9s ease-out; }
+@keyframes flare {
+  0% { color: var(--lume); text-shadow: 0 0 12px rgba(78,240,207,.8); }
+  100% { color: inherit; text-shadow: none; }
+}
+
+/* bucket ticker */
+.bucket-ticker { list-style: none; padding: 0; margin: .4rem 0; font-size: 12.5px; }
+.bucket-ticker li { padding: .15rem 0; transition: color .3s; }
+.bucket-ticker li[data-b="failed"] { color: #f4a9b1; }
+.bucket-ticker li[data-b="added"] { color: #9ef5e2; }
+
+/* a11y: visible focus everywhere, gently luminous */
+:focus-visible {
+  outline: 2px solid var(--lume);
+  outline-offset: 2px;
+}
+button:focus-visible, input:focus-visible, select:focus-visible {
+  outline: 2px solid var(--lume);
+  outline-offset: 1px;
+}
+
+img[loading="lazy"] { content-visibility: auto; }
+
+@media (prefers-reduced-motion: reduce) {
+  .probe i { animation: none; }
+  .drawer { animation: none; }
+  .depth-fill { transition: none; }
+  .toast { transition: none; }
+  .bucket-ticker li.flare { animation: none; }
+}
+
+/* scrollbar — old periscope */
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(78, 240, 207, .18);
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(78, 240, 207, .32); }

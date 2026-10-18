@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% block title %}{{ l.name if not missing else "missing" }}{% endblock %}
+{% block content %}
+{% if missing %}
+  <h1>List not found</h1><p><a href="/browse">back to browse</a></p>
+{% else %}
+<div class="bench-head" data-src="{{ l.source }}">
+  <h1>{{ l.name }} <small>(<span class="src src-{{ l.source }}">{{ l.source }}</span>)</small></h1>
+  <p>
+    {{ l.mediatype }} · {{ l.item_count }} items
+    {% if l.anime %} · <span class="flag anime">anime</span>{% endif %}
+    {% if l.xxx %} · <span class="flag xxx">XXX</span>{% endif %}
+    · last synced {{ l.last_synced_at or "never" }}
+    {% if l.last_error %}<span class="bad">— {{ l.last_error }}</span>{% endif %}
+    {% if l.url %} · <a href="{{ l.url }}">source</a>{% endif %}
+  </p>
+</div>
+
+{% if not running_import %}
+<form method="post" action="/lists/{{ l.id }}/import" class="importer" id="importer">
+  <h2>Import the checked rows — {{ app }} options (all prefilled)</h2>
+  <input type="hidden" name="item_ids" id="item_ids" value="">
+  {% if l.mediatype == "mixed" %}
+  <label>Target app
+    <select name="target_app">
+      <option value="radarr">radarr (movie rows)</option>
+      <option value="sonarr">sonarr (show rows)</option>
+    </select></label>
+  {% endif %}
+  <label>Quality profile
+    <select name="quality_profile">
+      {% for p in profiles %}<option value="{{ p.id }}"{% if "2160p" in p.name %} selected{% endif %}>{{ p.name }}</option>{% endfor %}
+    </select></label>
+  <label>Root folder
+    <select name="root_folder">
+      {% for f in folders %}<option value="{{ f.path }}">{{ f.path }}</option>{% endfor %}
+    </select></label>
+  <label>Monitor <input type="checkbox" name="monitor" value="true" checked></label>
+  {% if app == "radarr" %}
+  <label>Minimum availability
+    <select name="minimum_availability">
+      {% for v in ["released", "announced", "inCinemas", "preDB"] %}
+      <option value="{{ v }}" {% if v == "released" %}selected{% endif %}>{{ v }}</option>
+      {% endfor %}
+    </select></label>
+  {% endif %}
+  <label>Search on add
+    <select name="search_on_add">
+      <option value="true" {% if default_search == "true" %}selected{% endif %}>search</option>
+      <option value="false" {% if default_search == "false" %}selected{% endif %}>quiet (huge list)</option>
+    </select></label>
+  <label>Series type
+    <select name="series_type">
+      <option value="standard"{% if not l.anime %} selected{% endif %}>standard</option>
+      <option value="anime"{% if l.anime %} selected{% endif %}>anime</option>
+    </select></label>
+  <label><input type="checkbox" name="force" value="true"> force (add even if already present)</label>
+  <button type="submit">Import checked</button>
+</form>
+{% else %}
+<p class="running">An import job is running for this list.
+  <a href="/imports/{{ running_import }}">View</a></p>
+{% endif %}
+
+<section class="bench" data-list-id="{{ l.id }}" data-q="{{ q or "" }}">
+  <h2>Census bench</h2>
+  <p class="hint">j/k haul the sight over rows · x casts the hook · a hauls all · A casts none ·
+  g ↵ weighs the checked anchor into {{ app }}</p>
+  <div class="bench-tools">
+    <label>Live Berth <input id="live-search" placeholder="hoard the hold…" autocomplete="off"></label>
+    <button type="button" id="qf-lib" data-qf="lib">Hide in-library</button>
+    {% if l.xxx %}<button type="button" id="qf-xxx" data-qf="xxx">Hide XXX</button>{% endif %}
+    {% if l.anime %}<button type="button" id="qf-anime" data-qf="anime">Hide anime</button>{% endif %}
+    <button type="button" id="qf-star" data-qf="star">Starred only</button>
+    <button type="button" id="qf-clear" data-qf="clear">Clear sights</button>
+    <span class="sel-count" id="sel-count">0 checked</span>
+    <button type="button" id="sel-clear" class="ghost">Clear selection</button>
+    <label>Preset
+      <select id="preset-select"><option value="">— choose —</option></select></label>
+    <button type="button" id="preset-apply">Apply preset</button>
+    <button type="button" id="preset-save" class="ghost">Save sight</button>
+    <span id="preset-name"></span>
+  </div>
+</section>
+
+<table id="items-table" data-js="sortable curatable" data-list-id="{{ l.id }}">
+  <thead><tr>
+    <th class="col-check"><input type="checkbox" id="check-all" aria-label="select or unselect all rows"></th>
+    <th></th>
+    <th data-sort="text">Title <span class="note-mark">/ grounding</span></th>
+    <th data-sort="num">Year</th>
+    <th data-sort="num">Hull</th>
+    <th>Depth</th>
+  </tr></thead>
+  <tbody>
+  {% for it in items %}
+    <tr data-item-id="{{ it.id }}" data-title="{{ it.title }}"
+        data-lib="{{ 1 if it.in_library else 0 }}" data-mon="{{ 1 if it.monitored else 0 }}"
+        data-xxx="{{ 1 if it.xxx else 0 }}"
+        data-starred="{{ 1 if it.starred else 0 }}"
+        data-unres="{{ 1 if not it.tmdb_id and not it.tvdb_id else 0 }}"
+        {% if it.poster_url %}data-poster="{{ it.poster_url }}"{% endif %}
+        {% if it.backdrop_url %}data-backdrop="{{ it.backdrop_url }}"{% endif %}>
+      <td class="col-check"><input type="checkbox" class="pick" value="{{ it.id }}"
+        {% if it.starred %}aria-label="{{ it.title }} — starred"{% endif %}></td>
+      <td class="col-art">
+        {% if it.poster_url %}<img src="{{ it.poster_url }}" width="45" alt="" loading="lazy">{% endif %}
+      </td>
+      <td><span class="row-title">{{ it.title }}</span>
+        {% if it.starred %}<span class="star" aria-label="starred">✱</span>{% endif %}
+        {% if it.note %}<span class="note-mark" title="{{ it.note }}">⌘</span>{% endif %}
+        {% if it.xxx %} <span class="flag xxx">XXX</span>{% endif %}</td>
+      <td>{{ it.year or "" }}</td>
+      <td>{% if it.in_library %}{% if it.monitored %}<span class="badge in">in library (monitored)</span>{% else %}<span class="badge off">in library (unmonitored)</span>{% endif %}{% else %}<span class="badge no">—</span>{% endif %}</td>
+      <td class="row-actions">
+        <button type="button" class="act star-btn ghost" title="toggle star"
+          aria-label="toggle star on {{ it.title }}">✱</button>
+        <button type="button" class="act note-btn ghost" title="note"
+          aria-label="note on {{ it.title }}">⌘</button>
+        <button type="button" class="act info-btn ghost" title="sonar (detail drawer)"
+          aria-label="item detail for {{ it.title }}">◎</button>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<section class="bench" data-list-id="{{ l.id }}" id="bench-bottom">
+</section>
+<p>
+  {% if page > 1 %}<a href="?page={{ page - 1 }}">&laquo; prev</a>{% endif %}
+  {{ items|length }} of {{ total }} · page {{ page }} / {{ pages }}
+  {% if page < pages %}<a id="next-page" href="?page={{ page + 1 }}">next &raquo;</a>{% endif %}
+</p>
+{% if page < pages %}<link rel="prefetch" href="?page={{ page + 1 }}">{% endif %}
+
+<script>
+function checkedIds() {
+  const sel = JSON.parse(localStorage.getItem('lh_sel_' + {{ l.id }}) || '[]');
+  document.querySelectorAll('#items-table input.pick:checked').forEach(c => sel.push(+c.value));
+  return [...new Set(sel)].join(',');
+}
+</script>
+
+{% if prior_imports %}
+<h2>Prior imports</h2>
+<table>
+  <thead><tr><th>Tag</th><th>Added</th><th>Failed</th><th>Status</th><th>Remove</th><th>Re-issue</th></tr></thead>
+  <tbody>
+  {% for i in prior_imports %}
+    <tr>
+      <td><a href="/imports/{{ i.import_id }}">view</a> · <code>{{ i.tag_label }}</code></td>
+      <td>{{ i.added }}</td>
+      <td>{{ i.failed }}</td>
+      <td>{{ i.status }}</td>
+      <td><a class="btn danger" href="/lists/{{ l.id }}/confirm-unimport/{{ i.import_id }}">unimport…</a></td>
+      <td>
+        {% if i.failed and i.status == "done" %}
+        <form method="post" action="/imports/{{ i.import_id }}/reissue">
+          <button type="submit" title="re-run the failed rows of this import">re-issue {{ i.failed }}</button>
+        </form>
+        {% else %}<span class="badge no">—</span>{% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endif %}
+{% endblock %}
